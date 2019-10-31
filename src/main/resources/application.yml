@@ -1,0 +1,8 @@
+spring:
+  profiles:
+    active: mybatis,jdbc,fdfs
+
+server:
+  port: 8080
+  tomcat:
+    uri-encoding: utf-8
