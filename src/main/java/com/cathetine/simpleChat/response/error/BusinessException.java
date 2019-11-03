@@ -4,7 +4,7 @@ package com.cathetine.simpleChat.response.error;
  * @Author:xjk
  * @Date 2019/10/31 15:03
  */
-public class BussinessException extends RuntimeException implements CommonError {
+public class BusinessException extends RuntimeException implements CommonError {
 
     private CommonError commonError;
 
@@ -13,7 +13,7 @@ public class BussinessException extends RuntimeException implements CommonError 
      *
      * @param commonError
      */
-    public BussinessException(CommonError commonError) {
+    public BusinessException(CommonError commonError) {
         this.commonError = commonError;
     }
 
@@ -23,7 +23,7 @@ public class BussinessException extends RuntimeException implements CommonError 
      * @param commonError
      * @param errMsg
      */
-    public BussinessException(CommonError commonError, String errMsg) {
+    public BusinessException(CommonError commonError, String errMsg) {
         this.commonError = commonError;
         this.commonError.setErrorMsg(errMsg);
     }

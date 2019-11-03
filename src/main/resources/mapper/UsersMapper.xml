@@ -14,4 +14,38 @@
     <result column="qrcode" property="qrcode" jdbcType="VARCHAR" />
     <result column="cid" property="cid" jdbcType="VARCHAR" />
   </resultMap>
+  <select id="queryFriendRequestList" resultType="com.cathetine.simpleChat.pojo.vo.FriendsRequestVO"
+          parameterType="String">
+
+		select
+			sender.id as sendUserId,
+			sender.username as sendUsername,
+			sender.face_image as sendFaceImage,
+			sender.nickname as sendNickname
+		from
+			friends_request fr
+		left join
+			users sender
+		on
+			fr.send_user_id = sender.id
+		where
+			fr.accept_user_id = #{acceptUserId}
+
+	</select>
+	<select id="queryFriendsByUserId" resultType="com.cathetine.simpleChat.pojo.vo.MyFriendsVO"
+			parameterType="String">
+		select
+			u.id as friendUserId,
+			u.username as friendUserName,
+			u.face_image as friendUserFaceImg,
+			u.nickname as friendUserNickName
+		from
+			my_friends my
+		left join
+			users u
+		on
+			u.id = my.my_friend_user_id
+		where
+			my.my_user_id = {userId}
+	</select>
 </mapper>

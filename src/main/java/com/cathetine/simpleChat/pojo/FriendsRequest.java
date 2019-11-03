@@ -18,7 +18,7 @@ public class FriendsRequest {
     private String acceptUserId;
 
     /**
-     * 发送请求的事件
+     * 发送请求的时间
      */
     @Column(name = "request_date_time")
     private Date requestDateTime;

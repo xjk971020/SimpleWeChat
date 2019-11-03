@@ -25,7 +25,7 @@ public class CommonReturnType {
      */
     private Object data;
 
-    public static CommonReturnType create(Object data) {
+    public static CommonReturnType  create(Object data) {
         return new CommonReturnType("success", data);
     }
 

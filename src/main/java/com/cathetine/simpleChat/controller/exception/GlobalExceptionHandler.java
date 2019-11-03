@@ -1,7 +1,7 @@
 package com.cathetine.simpleChat.controller.exception;
 
 import com.cathetine.simpleChat.response.CommonReturnType;
-import com.cathetine.simpleChat.response.error.BussinessException;
+import com.cathetine.simpleChat.response.error.BusinessException;
 import com.cathetine.simpleChat.response.error.EmBusinessError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,9 +24,9 @@ public class GlobalExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    @ExceptionHandler(value = BussinessException.class)
+    @ExceptionHandler(value = BusinessException.class)
     @ResponseStatus(HttpStatus.OK)
-    public CommonReturnType bussinessExceptionHandler(BussinessException ex) {
+    public CommonReturnType bussinessExceptionHandler(BusinessException ex) {
         logger.error("find bussiness exception: {}",ex.getErrMsg());
         Map<String,Object> responseData = new HashMap<>();
         responseData.put("errorCode",ex.getErrCode());
