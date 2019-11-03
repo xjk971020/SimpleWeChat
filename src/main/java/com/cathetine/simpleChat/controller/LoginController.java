@@ -11,11 +11,13 @@ import org.apache.shiro.authc.ExcessiveAttemptsException;
 import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -28,13 +30,13 @@ public class LoginController {
     @Autowired
     private UserService userService;
 
+
     @ApiOperation("登陆或者注册账户的接口")
     @PostMapping("/registerOrLogin")
     public CommonReturnType registerOrLogin(@RequestBody Users user) throws Exception {
         if (StringUtils.isEmpty(user.getUsername()) || StringUtils.isEmpty(user.getPassword())) {
             throw new BusinessException(EmBusinessError.PARMETER_VALIDATION_ERROR,"用户名或者密码不能为空");
         }
-        System.out.println(user.toString());
         Users findUser = userService.findUserByUserName(user.getUsername());
         //没有查询到用户，则进行注册
         if (findUser == null) {

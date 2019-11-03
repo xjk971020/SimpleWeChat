@@ -20,7 +20,7 @@ public class UserController {
     private UserService userService;
 
     @ApiOperation("设置用户昵称")
-    @PostMapping("/update/nickname")
+        @PostMapping("/update/nickname")
     public CommonReturnType setNickname(@RequestBody UsersBO userBO){
         return CommonReturnType.create(userService.setNickName(userBO));
     }

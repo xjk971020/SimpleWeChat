@@ -78,16 +78,17 @@ public class UserServiceImpl implements UserService {
         user.setFaceImage("");
         user.setFaceImageBig("");
         PasswordUtil.encryptUser(user);
+        logger.info(user.toString());
         return usersMapper.insertSelective(user);
     }
 
     @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public Users setNickName(UsersBO userBO) {
-        Users user = new Users();
-        user.setId(userBO.getUserId());
+        Users user = usersMapper.selectByPrimaryKey(userBO.getUserId());
         user.setNickname(userBO.getNickname());
         updateUserByUserId(user);
+        System.out.println(user);
         return user;
     }
 
@@ -109,17 +110,18 @@ public class UserServiceImpl implements UserService {
     @Override
     public Users updateUsersFaceInfo(UsersBO usersBO) throws Exception {
         String faceData = usersBO.getFaceData();
-        String userFaceImgPath = FileConst.FACE_IMG_PATH + usersBO.getUserId();
+        String userFaceImgPath = FileConst.FACE_IMG_PATH + usersBO.getUserId() + ".jpg";
         FileUtils.base64ToFile(userFaceImgPath,faceData);
         MultipartFile faceFile = FileUtils.fileToMultipart(userFaceImgPath);
         String bigImgUrl = fastDFSClient.uploadBase64(faceFile);
+        bigImgUrl = bigImgUrl.replace(FileConst.PIXEL_DOT,".");
         String[] faceUrls = bigImgUrl.split("\\.");
-        String thumbImgUrl = faceUrls[0] + FileConst.QR_CODE_PATH + faceUrls[1];
-        Users users = new Users();
-        users.setId(usersBO.getUserId());
+        String thumbImgUrl = faceUrls[0] + FileConst.PIXEL_DOT + faceUrls[1];
+        Users users = usersMapper.selectByPrimaryKey(usersBO.getUserId());
         users.setFaceImageBig(bigImgUrl);
         users.setFaceImage(thumbImgUrl);
         int updateCount = usersMapper.updateByPrimaryKeySelective(users);
+        System.out.println(users.toString());
         if (updateCount > 0) {
             return users;
         } else {
@@ -159,9 +161,9 @@ public class UserServiceImpl implements UserService {
         Example example = new Example(MyFriends.class);
         Example.Criteria criteria = example.createCriteria();
         criteria.andEqualTo("myUserId",user.getId());
-        criteria.andEqualTo("myFriendUserID",friendUser.getId());
+        criteria.andEqualTo("myFriendUserId",friendUser.getId());
         MyFriends myFriends = myFriendsMapper.selectOneByExample(example);
-        return myFriends == null;
+        return myFriends != null;
     }
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -182,6 +184,7 @@ public class UserServiceImpl implements UserService {
         criteria.andEqualTo("acceptUserId",friendUser.getId());
         FriendsRequest friendsRequest = friendsRequestMapper.selectOneByExample(example);
         if (friendsRequest == null) {
+            friendsRequest = new FriendsRequest();
             String requestId = sid.nextShort();
             friendsRequest.setId(requestId);
             friendsRequest.setAcceptUserId(friendUser.getId());
