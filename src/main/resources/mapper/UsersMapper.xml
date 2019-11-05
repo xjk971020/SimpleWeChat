@@ -46,6 +46,6 @@
 		on
 			u.id = my.my_friend_user_id
 		where
-			my.my_user_id = {userId}
+			my.my_user_id = #{userId}
 	</select>
 </mapper>
