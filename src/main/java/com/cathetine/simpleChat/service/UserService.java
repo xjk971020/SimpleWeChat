@@ -1,11 +1,10 @@
 package com.cathetine.simpleChat.service;
 
+import com.cathetine.simpleChat.pojo.ChatMsg;
 import com.cathetine.simpleChat.pojo.Users;
 import com.cathetine.simpleChat.pojo.bo.UsersBO;
 import com.cathetine.simpleChat.pojo.vo.FriendsRequestVO;
 import com.cathetine.simpleChat.pojo.vo.MyFriendsVO;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -100,4 +99,26 @@ public interface UserService {
      * @return
      */
     List<MyFriendsVO> queryFriendsByUserId(String userId);
+
+    /**
+     * 用户手机端获取未签收的消息列表
+     * @param acceptUserId
+     * @return
+     */
+    List<ChatMsg> getUnReadMsg(String acceptUserId);
+
+    /**
+     * 保存聊天信息
+     * @param chatMsg
+     * @return
+     */
+    String saveMsg(com.cathetine.netty.ChatMsg chatMsg);
+
+    /**
+     * 批量修改未读信息
+     * @param msgIdList
+     */
+    void updateMsgSigned(List<String> msgIdList);
+
+
 }

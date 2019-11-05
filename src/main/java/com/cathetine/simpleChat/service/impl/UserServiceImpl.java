@@ -1,9 +1,12 @@
 package com.cathetine.simpleChat.service.impl;
 
+import com.cathetine.netty.enums.MsgSignFlagEnum;
 import com.cathetine.simpleChat.constant.FileConst;
+import com.cathetine.simpleChat.mapper.ChatMsgMapper;
 import com.cathetine.simpleChat.mapper.FriendsRequestMapper;
 import com.cathetine.simpleChat.mapper.MyFriendsMapper;
 import com.cathetine.simpleChat.mapper.UsersMapper;
+import com.cathetine.simpleChat.pojo.ChatMsg;
 import com.cathetine.simpleChat.pojo.FriendsRequest;
 import com.cathetine.simpleChat.pojo.MyFriends;
 import com.cathetine.simpleChat.pojo.Users;
@@ -47,6 +50,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private FriendsRequestMapper friendsRequestMapper;
+
+    @Autowired
+    private ChatMsgMapper chatMsgMapper;
 
     @Autowired
     private Sid sid;
@@ -225,5 +231,42 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<MyFriendsVO> queryFriendsByUserId(String userId) {
         return usersMapper.queryFriendsByUserId(userId);
+    }
+
+    @Transactional(propagation = Propagation.SUPPORTS)
+    @Override
+    public List<ChatMsg> getUnReadMsg(String acceptUserId) {
+        if (StringUtils.isEmpty(acceptUserId)) {
+            throw new BusinessException(EmBusinessError.PARMETER_VALIDATION_ERROR,"acceptUserId不能为空");
+        }
+        Example example = new Example(ChatMsg.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andEqualTo("acceptUserId", acceptUserId);
+        criteria.andEqualTo("signFlag", 0);
+        List<ChatMsg> unReadMsgList = chatMsgMapper.selectByExample(criteria);
+        return unReadMsgList;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    @Override
+    public String saveMsg(com.cathetine.netty.ChatMsg chatMsg) {
+        ChatMsg msgDB = new ChatMsg();
+        String msgId = sid.nextShort();
+        msgDB.setId(msgId);
+        msgDB.setAcceptUserId(chatMsg.getReceiverId());
+        msgDB.setSendUserId(chatMsg.getSenderId());
+        msgDB.setCreateTime(new Date());
+        msgDB.setSignFlag(MsgSignFlagEnum.unsign.type);
+        msgDB.setMsg(chatMsg.getMsg());
+
+        chatMsgMapper.insert(msgDB);
+
+        return msgId;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    @Override
+    public void updateMsgSigned(List<String> msgIdList) {
+        usersMapper.batchUpdateMsgSigned(msgIdList);
     }
 }

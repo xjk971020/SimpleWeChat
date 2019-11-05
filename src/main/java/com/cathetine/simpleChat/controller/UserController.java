@@ -63,4 +63,10 @@ public class UserController {
     public CommonReturnType queryMyFriends(@PathVariable String userId) {
         return CommonReturnType.create(userService.queryFriendsByUserId(userId));
     }
+
+    @ApiOperation("用户手机端获取未签收的消息列表")
+    @GetMapping("/query/unreadMsg/{acceptUserId}")
+    public CommonReturnType getUnReadMsg(@PathVariable String acceptUserId) {
+        return CommonReturnType.create(userService.getUnReadMsg(acceptUserId));
+    }
 }
