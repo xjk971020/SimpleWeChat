@@ -1,4 +1,4 @@
-package com.cathetine.netty;
+package com.cathetine.simpleChat.netty;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;

@@ -1,7 +1,10 @@
-package com.cathetine.netty;
+package com.cathetine.simpleChat.netty;
 
-import com.cathetine.netty.enums.MsgActionEnum;
+import com.cathetine.simpleChat.netty.enums.MsgActionEnum;
+import com.cathetine.simpleChat.SpringUtil;
+import com.cathetine.simpleChat.pojo.ChatMsg;
 import com.cathetine.simpleChat.service.UserService;
+import com.cathetine.simpleChat.service.impl.UserServiceImpl;
 import com.cathetine.simpleChat.utils.JsonUtils;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -11,7 +14,6 @@ import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,9 +24,6 @@ import java.util.List;
  * TextWebSocketFrame： 在netty中，是用于为websocket专门处理文本的对象，frame是消息的载体
  */
 public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
-
-	@Autowired
-	private UserService userService;
 
 	// 用于记录和管理所有客户端的channle
 	public static ChannelGroup users = 
@@ -45,7 +44,7 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
 
 		if (action.equals(MsgActionEnum.CONNECT.type)) {
 			// 	2.1  当websocket 第一次open的时候，初始化channel，把用的channel和userid关联起来
-			String senderId = dataContent.getChatMsg().getSenderId();
+			String senderId = dataContent.getChatMessage().getSenderId();
 			UserChannelRel.put(senderId, currentChannel);
 			
 			// 测试
@@ -55,17 +54,18 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
 			UserChannelRel.output();
 		} else if (action.equals(MsgActionEnum.CHAT.type)) {
 			//  2.2  聊天类型的消息，把聊天记录保存到数据库，同时标记消息的签收状态[未签收]
-			ChatMsg chatMsg = dataContent.getChatMsg();
-			String msgText = chatMsg.getMsg();
-			String receiverId = chatMsg.getReceiverId();
-			String senderId = chatMsg.getSenderId();
+			ChatMessage chatMessage = dataContent.getChatMessage();
+			String msgText = chatMessage.getMsg();
+			String receiverId = chatMessage.getReceiverId();
+			String senderId = chatMessage.getSenderId();
 			
 			// 保存消息到数据库，并且标记为 未签收
-			String msgId = userService.saveMsg(chatMsg);
-			chatMsg.setMsgId(msgId);
+			UserService userService = (UserService) SpringUtil.getBean(UserServiceImpl.class);
+			String msgId = userService.saveMsg(chatMessage);
+			chatMessage.setMsgId(msgId);
 			
 			DataContent dataContentMsg = new DataContent();
-			dataContentMsg.setChatMsg(chatMsg);
+			dataContentMsg.setChatMessage(chatMessage);
 			
 			// 发送消息
 			// 从全局用户Channel关系中获取接受方的channel
@@ -85,7 +85,7 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
 				}
 			}
 			
-		} else if (action == MsgActionEnum.SIGNED.type) {
+		} else if (action.equals(MsgActionEnum.SIGNED.type)) {
 			//  2.3  签收消息类型，针对具体的消息进行签收，修改数据库中对应消息的签收状态[已签收]
 			// 扩展字段在signed类型的消息中，代表需要去签收的消息id，逗号间隔
 			String msgIdsStr = dataContent.getExtand();
@@ -99,13 +99,13 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
 			}
 			
 			System.out.println(msgIdList.toString());
-			
+			UserService userService = (UserService)SpringUtil.getBean(UserServiceImpl.class);
 			if (msgIdList != null && !msgIdList.isEmpty() && msgIdList.size() > 0) {
 				// 批量签收
 				userService.updateMsgSigned(msgIdList);
 			}
 			
-		} else if (action == MsgActionEnum.KEEPALIVE.type) {
+		} else if (action.equals(MsgActionEnum.KEEPALIVE.type)) {
 			//  2.4  心跳类型的消息
 			System.out.println("收到来自channel为[" + currentChannel + "]的心跳包...");
 		}

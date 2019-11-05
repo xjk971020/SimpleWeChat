@@ -1,8 +1,8 @@
-package com.cathetine.netty;
+package com.cathetine.simpleChat.netty;
 
 import java.io.Serializable;
 
-public class ChatMsg implements Serializable {
+public class ChatMessage implements Serializable {
 
 	private static final long serialVersionUID = 3611169682695799175L;
 	

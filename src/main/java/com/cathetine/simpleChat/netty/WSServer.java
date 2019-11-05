@@ -1,4 +1,4 @@
-package com.cathetine.netty;
+package com.cathetine.simpleChat.netty;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -34,6 +34,5 @@ public class WSServer {
 	
 	public void start() {
 		this.future = server.bind(8088);
-		System.err.println("netty websocket server 启动完毕...");
 	}
 }

@@ -1,6 +1,7 @@
 package com.cathetine.simpleChat.service.impl;
 
-import com.cathetine.netty.enums.MsgSignFlagEnum;
+import com.cathetine.simpleChat.netty.ChatMessage;
+import com.cathetine.simpleChat.netty.enums.MsgSignFlagEnum;
 import com.cathetine.simpleChat.constant.FileConst;
 import com.cathetine.simpleChat.mapper.ChatMsgMapper;
 import com.cathetine.simpleChat.mapper.FriendsRequestMapper;
@@ -249,15 +250,15 @@ public class UserServiceImpl implements UserService {
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @Override
-    public String saveMsg(com.cathetine.netty.ChatMsg chatMsg) {
+    public String saveMsg(ChatMessage chatMessage) {
         ChatMsg msgDB = new ChatMsg();
         String msgId = sid.nextShort();
         msgDB.setId(msgId);
-        msgDB.setAcceptUserId(chatMsg.getReceiverId());
-        msgDB.setSendUserId(chatMsg.getSenderId());
+        msgDB.setAcceptUserId(chatMessage.getReceiverId());
+        msgDB.setSendUserId(chatMessage.getSenderId());
         msgDB.setCreateTime(new Date());
         msgDB.setSignFlag(MsgSignFlagEnum.unsign.type);
-        msgDB.setMsg(chatMsg.getMsg());
+        msgDB.setMsg(chatMessage.getMsg());
 
         chatMsgMapper.insert(msgDB);
 

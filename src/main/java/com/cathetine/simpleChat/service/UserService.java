@@ -1,5 +1,6 @@
 package com.cathetine.simpleChat.service;
 
+import com.cathetine.simpleChat.netty.ChatMessage;
 import com.cathetine.simpleChat.pojo.ChatMsg;
 import com.cathetine.simpleChat.pojo.Users;
 import com.cathetine.simpleChat.pojo.bo.UsersBO;
@@ -112,7 +113,7 @@ public interface UserService {
      * @param chatMsg
      * @return
      */
-    String saveMsg(com.cathetine.netty.ChatMsg chatMsg);
+    String saveMsg(ChatMessage chatMsg);
 
     /**
      * 批量修改未读信息

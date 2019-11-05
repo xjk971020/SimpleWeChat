@@ -1,4 +1,4 @@
-package com.cathetine.netty.enums;
+package com.cathetine.simpleChat.netty.enums;
 
 /**
  * 
