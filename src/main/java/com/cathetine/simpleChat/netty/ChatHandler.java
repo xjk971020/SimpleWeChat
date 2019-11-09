@@ -37,6 +37,8 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
 		
 		Channel currentChannel = ctx.channel();
 
+		System.out.println(content);
+
 		// 1. 获取客户端发来的消息
 		DataContent dataContent = JsonUtils.jsonToPojo(content, DataContent.class);
 		Integer action = dataContent.getAction();
@@ -60,7 +62,7 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
 			String senderId = chatMessage.getSenderId();
 			
 			// 保存消息到数据库，并且标记为 未签收
-			UserService userService = (UserService) SpringUtil.getBean(UserServiceImpl.class);
+			UserService userService = SpringUtil.getBean(UserServiceImpl.class);
 			String msgId = userService.saveMsg(chatMessage);
 			chatMessage.setMsgId(msgId);
 			

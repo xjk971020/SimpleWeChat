@@ -1,12 +1,15 @@
 package com.cathetine.simpleChat.service.impl;
 
-import com.cathetine.simpleChat.netty.ChatMessage;
-import com.cathetine.simpleChat.netty.enums.MsgSignFlagEnum;
 import com.cathetine.simpleChat.constant.FileConst;
 import com.cathetine.simpleChat.mapper.ChatMsgMapper;
 import com.cathetine.simpleChat.mapper.FriendsRequestMapper;
 import com.cathetine.simpleChat.mapper.MyFriendsMapper;
 import com.cathetine.simpleChat.mapper.UsersMapper;
+import com.cathetine.simpleChat.netty.ChatMessage;
+import com.cathetine.simpleChat.netty.DataContent;
+import com.cathetine.simpleChat.netty.UserChannelRel;
+import com.cathetine.simpleChat.netty.enums.MsgActionEnum;
+import com.cathetine.simpleChat.netty.enums.MsgSignFlagEnum;
 import com.cathetine.simpleChat.pojo.ChatMsg;
 import com.cathetine.simpleChat.pojo.FriendsRequest;
 import com.cathetine.simpleChat.pojo.MyFriends;
@@ -17,10 +20,9 @@ import com.cathetine.simpleChat.pojo.vo.MyFriendsVO;
 import com.cathetine.simpleChat.response.error.BusinessException;
 import com.cathetine.simpleChat.response.error.EmBusinessError;
 import com.cathetine.simpleChat.service.UserService;
-import com.cathetine.simpleChat.utils.FastDFSClient;
-import com.cathetine.simpleChat.utils.FileUtils;
-import com.cathetine.simpleChat.utils.PasswordUtil;
-import com.cathetine.simpleChat.utils.QRCodeUtils;
+import com.cathetine.simpleChat.utils.*;
+import io.netty.channel.Channel;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.n3r.idworker.Sid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -216,16 +218,42 @@ public class UserServiceImpl implements UserService {
         if (StringUtils.isEmpty(acceptUserId) || StringUtils.isEmpty(sendUserId) || StringUtils.isEmpty(operateType)) {
             throw new BusinessException(EmBusinessError.PARMETER_VALIDATION_ERROR,"缺少必须参数");
         }
-        if ("接受".equals(operateType)) {
-
-        } else if ("拒绝".equals(operateType)){
-            Example example = new Example(FriendsRequest.class);
-            Example.Criteria criteria = example.createCriteria();
-            criteria.andEqualTo("sendUserId",sendUserId);
-            criteria.andEqualTo("acceptUserId",acceptUserId);
-            friendsRequestMapper.deleteByExample(example);
+        //1表示接受，0表示拒绝
+        if ("1".equals(operateType)) {
+            saveFriends(acceptUserId, sendUserId);
+            saveFriends(sendUserId, acceptUserId);
+            deleteFriendRequest(sendUserId,acceptUserId);
+            Channel sendChannel = UserChannelRel.get(sendUserId);
+            if (sendChannel != null) {
+                DataContent dataContent = new DataContent();
+                dataContent.setAction(MsgActionEnum.PULL_FRIEND.type);
+                sendChannel.writeAndFlush(new TextWebSocketFrame(
+                        JsonUtils.objectToJson(dataContent)
+                ));
+            }
+        } else if ("0".equals(operateType)){
+            deleteFriendRequest(sendUserId,acceptUserId);
         }
         return queryFriendsByUserId(acceptUserId);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+     void deleteFriendRequest(String sendUserId, String acceptUserId) {
+        Example example = new Example(FriendsRequest.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andEqualTo("sendUserId",sendUserId);
+        criteria.andEqualTo("acceptUserId",acceptUserId);
+        friendsRequestMapper.deleteByExample(example);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    void saveFriends(String sendUserId, String acceptUserId) {
+        MyFriends myFriends = new MyFriends();
+        String recordId = sid.nextShort();
+        myFriends.setId(recordId);
+        myFriends.setMyFriendUserId(acceptUserId);
+        myFriends.setMyUserId(sendUserId);
+        myFriendsMapper.insert(myFriends);
     }
 
     @Transactional(propagation = Propagation.SUPPORTS, rollbackFor = Exception.class)

@@ -18,10 +18,10 @@
           parameterType="String">
 
 		select
-			sender.id as sendUserId,
-			sender.username as sendUsername,
-			sender.face_image as sendFaceImage,
-			sender.nickname as sendNickname
+			sender.id as userId,
+			sender.username as userName,
+			sender.face_image as thumbFaceImgUrl,
+			sender.nickname as nickName
 		from
 			friends_request fr
 		left join
