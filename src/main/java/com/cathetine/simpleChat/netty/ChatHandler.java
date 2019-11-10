@@ -99,9 +99,8 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
 					msgIdList.add(mid);
 				}
 			}
-			
 			System.out.println(msgIdList.toString());
-			UserService userService = (UserService)SpringUtil.getBean(UserServiceImpl.class);
+			UserService userService = SpringUtil.getBean(UserServiceImpl.class);
 			if (msgIdList != null && !msgIdList.isEmpty() && msgIdList.size() > 0) {
 				// 批量签收
 				userService.updateMsgSigned(msgIdList);

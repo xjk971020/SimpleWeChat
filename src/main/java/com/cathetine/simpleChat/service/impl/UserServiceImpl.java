@@ -87,7 +87,7 @@ public class UserServiceImpl implements UserService {
         user.setFaceImage("");
         user.setFaceImageBig("");
         PasswordUtil.encryptUser(user);
-        logger.info(user.toString());
+//        logger.info(user.toString());
         return usersMapper.insertSelective(user);
     }
 
@@ -262,7 +262,7 @@ public class UserServiceImpl implements UserService {
         return usersMapper.queryFriendsByUserId(userId);
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
+    @Transactional(propagation = Propagation.SUPPORTS, rollbackFor = Exception.class)
     @Override
     public List<ChatMsg> getUnReadMsg(String acceptUserId) {
         if (StringUtils.isEmpty(acceptUserId)) {
