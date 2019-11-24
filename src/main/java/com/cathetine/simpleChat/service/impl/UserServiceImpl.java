@@ -272,7 +272,7 @@ public class UserServiceImpl implements UserService {
         Example.Criteria criteria = example.createCriteria();
         criteria.andEqualTo("acceptUserId", acceptUserId);
         criteria.andEqualTo("signFlag", 0);
-        List<ChatMsg> unReadMsgList = chatMsgMapper.selectByExample(criteria);
+        List<ChatMsg> unReadMsgList = chatMsgMapper.selectByExample(example);
         return unReadMsgList;
     }
 
