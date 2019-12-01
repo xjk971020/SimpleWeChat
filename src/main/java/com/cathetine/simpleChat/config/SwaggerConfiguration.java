@@ -21,7 +21,7 @@ public class SwaggerConfiguration {
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo())
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("cn.dezhi.welfare.partner.controller"))
+                .apis(RequestHandlerSelectors.basePackage("com.cathetine.simpleChat.controller"))
                 .paths(PathSelectors.any())
                 .build();
     }

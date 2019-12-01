@@ -67,6 +67,7 @@ public class UserController {
     @ApiOperation("用户手机端获取未签收的消息列表")
     @GetMapping("/query/unreadMsg/{acceptUserId}")
     public CommonReturnType getUnReadMsg(@PathVariable String acceptUserId) {
+        System.out.println(acceptUserId + "----------->");
         return CommonReturnType.create(userService.getUnReadMsg(acceptUserId));
     }
 }
